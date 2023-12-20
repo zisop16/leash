@@ -5,6 +5,7 @@ using UnityEngine;
 public class CameraControl : MonoBehaviour
 {
     [SerializeField] private float _sens;
+    [SerializeField] private Transform _playerTransform;
     private float _yRotation;
     void Start()
     {
@@ -34,7 +35,7 @@ public class CameraControl : MonoBehaviour
             _yRotation = -90;
             verticalRotation -= diff;
         }
-        transform.Rotate(Vector3.up, horizontalRotation, Space.World);
-        transform.Rotate(Vector3.right, -verticalRotation);
+        _playerTransform.Rotate(Vector3.up, horizontalRotation, Space.World);
+        _playerTransform.Rotate(Vector3.right, -verticalRotation);
     }
 }

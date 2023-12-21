@@ -1,18 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Hook : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+    [SerializeField] private Rope _rope;
+    void OnCollisionEnter(Collision col) {
+        _rope.Connected = true;
+        Debug.Log("hi");
     }
 }

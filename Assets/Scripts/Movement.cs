@@ -41,8 +41,9 @@ public class Movement : MonoBehaviour
     void throwHook() {
         Vector3 forward = _cameraTransform.forward;
         GameObject hook = Instantiate(_hook, _throwLocation.position, Quaternion.identity);
-        Rigidbody hookBody = hook.GetComponent<Rigidbody>();
-        float speed = 10f;
+        hook.GetComponentInChildren<Rope>().setOrigin(_throwLocation);
+        Rigidbody hookBody = hook.GetComponentInChildren<Rigidbody>();
+        float speed = 20f;
         Vector3 throwVelocity = speed * forward;
         hookBody.AddForce(throwVelocity, ForceMode.VelocityChange);
     }

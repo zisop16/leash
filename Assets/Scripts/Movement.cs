@@ -1,32 +1,55 @@
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Movement : MonoBehaviour
 {
-    private Rigidbody _playerBody;
-
+    public static Movement Instance {get; private set;}
     private PlayerInput _input;
-    // private InputAction _movement;
-    private InputAction _throw;
-    [SerializeField] private Transform _cameraTransform;
-
-    [SerializeField] private Transform _throwLocation;
-    [SerializeField] private GameObject _hook;
+    private InputAction _movement;
+    private InputAction _possess;
     void Start()
     {
-        _playerBody = GetComponent<Rigidbody>();
+        if (Instance != null) {
+            Debug.LogError("There can only be one Movement");
+            Destroy(this);
+            return;
+        }
+        Instance = this;
         _input = GetComponent<PlayerInput>();
-        // _movement = _input.actions.FindAction("Move");
-        _throw = _input.actions.FindAction("Throw");
+        _movement = _input.actions.FindAction("Move");
+        _possess = _input.actions.FindAction("Possess");
+        // _throw = _input.actions.FindAction("Throw");
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (_throw.triggered) {
-            throwHook();
+        Playable target = PossessionTarget();
+        if (target != null) {
+            Possess(target);
         }
     }
+
+    Playable PossessionTarget() {
+        if (_possess.triggered) {
+            // Shoots a ray towards the direction the player is looking
+            Ray ray = CameraControl.Instance.PlayerCamera.ViewportPointToRay(new Vector3(.5f, .5f, 0));
+            if (Physics.Raycast(ray, out RaycastHit hit)) {
+                GameObject obj = hit.collider.gameObject;
+                Playable playable = obj.GetComponentInParent<Playable>();
+                return playable;
+            }
+        }
+        return null;
+    }
+
+    void Possess(Playable target) {
+        CameraControl.Instance.Player = target;
+    }
+
+
+
     /*
     void Move() {
         // (x, y) = (AD, WS) input
@@ -37,14 +60,4 @@ public class Movement : MonoBehaviour
         _playerBody.AddForce(acceleration, ForceMode.Acceleration);
     }
     */
-
-    void throwHook() {
-        Vector3 forward = _cameraTransform.forward;
-        GameObject hook = Instantiate(_hook, _throwLocation.position, Quaternion.identity);
-        hook.GetComponentInChildren<Rope>().setOrigin(_throwLocation);
-        Rigidbody hookBody = hook.GetComponentInChildren<Rigidbody>();
-        float speed = 20f;
-        Vector3 throwVelocity = speed * forward;
-        hookBody.AddForce(throwVelocity, ForceMode.VelocityChange);
-    }
 }
